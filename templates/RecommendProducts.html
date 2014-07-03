@@ -1,0 +1,44 @@
+
+{if $products}
+    <link rel="stylesheet" href="{$wa_app_static_url}plugins/recommendproducts/js/jquery.bxslider/jquery.bxslider.css" />
+    <script src="{$wa_app_static_url}plugins/recommendproducts/js/jquery.bxslider/jquery.bxslider.min.js" type="text/javascript"></script>
+    <h2>{$title_products}</h2>
+    <ul class="product-list recommendproducts">
+        {foreach $products as $p}
+            <li class="slide" itemscope itemtype ="http://schema.org/Product">
+                <div class="image">
+                    <a href="{$p.frontend_url}" title="{$p.name}{if $p.summary} &mdash; {strip_tags($p.summary)}{/if}">
+                        {$badge_html = $wa->shop->badgeHtml($p.badge)}
+                        {if $badge_html}
+                            <div class="corner top right">{$badge_html}</div>
+                        {/if}
+                        {$wa->shop->productImgHtml($p, '200', ['itemprop' => 'image', 'alt' => $p.name, 'default' => "`$wa_theme_url`img/dummy200.png"])}
+                        <h5 itemprop="name">
+                            {$p.name}
+                        </h5>
+                        {if $p.rating > 0}
+                            <span class="rating nowrap">{$wa->shop->ratingHtml($p.rating)}</span>
+                        {/if}
+                    </a>
+                </div><br>
+
+                {if $p.summary}<p itemprop="description">{$p.summary}</p>{/if}
+
+                <div itemprop="offers" class="offers" itemscope itemtype="http://schema.org/Offer">
+                    {if $p.compare_price > 0}<span class="compare-at-price nowrap"> {shop_currency($p.compare_price)} </span>{/if}
+                    <span class="price nowrap" itemprop="price">{shop_currency($p.price)}</span>
+                </div>
+            </li>
+        {/foreach}
+    </ul>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.recommendproducts').bxSlider({
+                slideWidth: 200,
+                minSlides: 1,
+                maxSlides: 4,
+                slideMargin: 10
+            });
+        });
+    </script>
+{/if}

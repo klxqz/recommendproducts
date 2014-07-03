@@ -1,0 +1,9 @@
+.icon16.star,
+.icon16.star-full { background-image: url("../img/icons.png"); background-position:-16px 0; }
+.icon16.star-half { background-image: url("../img/icons.png"); background-position:-32px 0; }
+.icon16.star-empty { background-image: url("../img/icons.png"); background-position:-48px 0; }
+.icon16.star-hover { background-image: url("../img/icons.png"); background-position:-64px 0; }
+.icon10.star,
+.icon10.star-full { background-image: url("../img/icons.png"); background-position:0 -16px; }
+.icon10.star-half { background-image: url("../img/icons.png"); background-position:-10px -16px; }
+.icon10.star-empty { background-image: url("../img/icons.png"); background-position:-20px -16px; }

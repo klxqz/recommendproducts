@@ -1,0 +1,56 @@
+{if $reviews}
+    <style>
+        .review{
+            padding-left: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="{$wa_app_static_url}plugins/recommendproducts/js/jquery.bxslider/jquery.bxslider.css" />
+    <script src="{$wa_app_static_url}plugins/recommendproducts/js/jquery.bxslider/jquery.bxslider.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="{$wa_app_static_url}plugins/recommendproducts/css/icons.css" />
+    <h2>{$title_reviews}</h2>
+    <ul class="menu-v with-icons recommendproducts-reviews">
+        {foreach $reviews as $review}
+            <li data-id={$review.id} data-parent-id="0">
+                {* one review output *}
+
+                <div class="review" itemprop="review" itemscope itemtype="http://schema.org/Review">
+                    <div class="summary">
+                        <span class="date" title="{$review.datetime|wa_datetime}">{$review.datetime|wa_datetime:"humandatetime"}</span>
+                        {$review.author.name}, отзыв к товару 
+                        <a href="{$review.product.frontend_url}" title="{$review.product.name}{if $review.product.summary} &mdash; {strip_tags($review.product.summary)}{/if}">
+                            {$review.product.name}
+                        </a>
+                        <h6>
+                            {if !$review.parent_id && !empty($review.rate)}
+                                <span itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+                                    {$rate = round($review.rate)}
+                                    <meta itemprop="worstRating" content = "1">
+                                    <meta itemprop="ratingValue" content="{$rate}">
+                                    <meta itemprop="bestRating" content = "5">
+                                    {$wa->shop->ratingHtml($rate)}
+                                </span>
+                            {/if}
+                            <span itemprop="name">{if $review.title}{$review.title}{/if}</span>
+                        </h6>
+
+                        <meta itemprop="datePublished" content="{$review.datetime|date_format:'Y-m-d'}">
+                        
+                    </div>
+                    {if $review.text}
+                        <p itemprop="description">{$review.text}</p>
+                    {/if}
+                </div>
+            </li>
+        {/foreach}
+    </ul>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.recommendproducts-reviews').bxSlider({
+                slideWidth: 250,
+                minSlides: 1,
+                maxSlides: 4,
+                slideMargin: 10
+            });
+        });
+    </script>
+{/if}
