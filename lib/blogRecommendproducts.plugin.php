@@ -52,9 +52,14 @@ class blogRecommendproductsPlugin extends blogPlugin {
 
                 $filters = $this->getCategoryFilter();
 
+                $routing = wa()->getRouting();
+                $domain_routes = $routing->getByApp('shop');
+
                 $view = wa()->getView();
                 $view->assign('recommend', $recommend);
                 $view->assign('filters', $filters);
+                $view->assign('domain_routes', $domain_routes);
+
                 $html = $view->fetch($this->path . '/templates/BackendPostEdit.html');
                 return array('toolbar' => $html);
             } catch (Exception $ex) {
@@ -89,9 +94,10 @@ class blogRecommendproductsPlugin extends blogPlugin {
                 }
 
                 $params_key = serialize($recommend);
-                $cache_key = md5('blogRecommendproductsPlugin::displayProducts' . $params_key);
+                $cache_id = md5('blogRecommendproductsPlugin::displayProducts' . $params_key);
 
-                $cache = new waSerializeCache($cache_key);
+                $cache_time = wa()->getConfig()->isDebug() ? 0 : 1800;
+                $cache = new waSerializeCache($cache_id, $cache_time);
                 if ($cache && $cache->isCached()) {
                     $products = $cache->get();
                 } else {
@@ -102,6 +108,9 @@ class blogRecommendproductsPlugin extends blogPlugin {
                     $collection = new blogRecommendproductsProductsCollection();
                     $collection->filters($recommend);
                     $products = $collection->getProducts('*', 0, $recommend['count_products']);
+
+                    $products = self::prepareProducts($products, $recommend['route']);
+
                     if ($products && $cache) {
                         $cache->set($products);
                     }
@@ -123,6 +132,37 @@ class blogRecommendproductsPlugin extends blogPlugin {
         }
     }
 
+    private static function prepareProducts($products, $route) {
+        wa('shop');
+        $route = explode(':', $route);
+        $domain = $route[0];
+        $url = $route[1];
+        $routing = wa()->getRouting();
+        $domain_routes = $routing->getByApp('shop');
+        $category_model = new shopCategoryModel();
+        $categories = $category_model->getFullTree('id, name, depth, url, full_url', true);
+        $routes = $domain_routes[$domain];
+        foreach ($routes as $r) {
+            if (empty($r['private']) && $r['url'] == $url && (empty($r['type_id']) || (in_array($product['type_id'], (array) $r['type_id'])))) {
+                $routing->setRoute($r, $domain);
+            }
+        }
+
+        foreach ($products as &$product) {
+            $params = array('product_url' => $product['url']);
+            if ($product['category_id'] && isset($categories[$product['category_id']])) {
+                if (!empty($r['url_type']) && $r['url_type'] == 1) {
+                    $params['category_url'] = $categories[$product['category_id']]['url'];
+                } else {
+                    $params['category_url'] = $categories[$product['category_id']]['full_url'];
+                }
+            }
+            $product['frontend_url'] = $routing->getUrl('shop/frontend/product', $params, true);
+        }
+        unset($product);
+        return $products;
+    }
+
     public static function displayReviews($post_id) {
         $app_settings_model = new waAppSettingsModel();
         $model = new shopRecommendproductsPluginModel();
@@ -134,9 +174,10 @@ class blogRecommendproductsPlugin extends blogPlugin {
                 }
 
                 $params_key = serialize($recommend);
-                $cache_key = md5('blogRecommendproductsPlugin::displayReviews' . $params_key);
+                $cache_id = md5('blogRecommendproductsPlugin::displayReviews' . $params_key);
+                $cache_time = wa()->getConfig()->isDebug() ? 0 : 1800;
 
-                $cache = new waSerializeCache($cache_key);
+                $cache = new waSerializeCache($cache_id, $cache_time);
                 if ($cache && $cache->isCached()) {
                     $reviews = $cache->get();
                 } else {
@@ -147,7 +188,8 @@ class blogRecommendproductsPlugin extends blogPlugin {
                     $collection = new blogRecommendproductsProductsCollection();
                     $collection->filters($recommend);
                     $products = $collection->getProducts('*', 0, $recommend['count_products']);
-                    
+                    $products = self::prepareProducts($products, $recommend['route']);
+
                     $reviews_model = new shopProductReviewsModel();
                     $reviews = array();
                     foreach ($products as $product) {

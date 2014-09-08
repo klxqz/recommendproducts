@@ -26,6 +26,28 @@
             </div>
         </div>
     </div>
+
+
+    <div class="field">
+        <div class="name">
+            Витрина
+        </div>
+        <div class="value">
+            <div class="b-ibutton-checkbox">
+                <select name="blog_recommendproducts[route]">
+                    {foreach $domain_routes as $domain => $routes}
+                        {foreach $routes as $route}
+                            {if empty($route.private)}
+                                <option {if $recommend.route == "`$domain`:`$route.url`"}selected="selected"{/if} value="{$domain}:{$route.url}">{$domain}/{$route.url}</option>
+                            {/if}
+                        {/foreach}
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+    </div>
+
+
     <div class="recommendproducts-settings">
         <div class="field">
             <div class="name">
@@ -112,12 +134,12 @@
                     Выбирите фильтры
                 </div>
                 <div class="value">
-                    
+
                     <p>
                         <b>Зачеркнутая цена</b><br>
                         <input autocomplete="off" type="checkbox" name="add_filters[compare_price]" {if isset($recommend.add_filters.compare_price)}checked="checked"{/if} value="1">
                     </p>
-                    
+
                     <p>
                         <b>Райтинг &gE;</b><br>
                         <select autocomplete="off" name="add_filters[rating]">
@@ -128,13 +150,13 @@
                             {/foreach}
                         </select>
                     </p>
-                    
-                    
+
+
                     <p>
                         <b>Товар в наличии</b><br>
                         <input autocomplete="off" type="checkbox" name="filters[in_stock_only]" {if isset($recommend.filters.in_stock_only)}checked="checked"{/if} value="1">
                     </p>
-                    
+
                     {foreach $filters as $fid => $filter}
                         <p>
                             {if $fid == 'price'}

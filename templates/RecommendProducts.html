@@ -12,7 +12,7 @@
                         {if $badge_html}
                             <div class="corner top right">{$badge_html}</div>
                         {/if}
-                        {$wa->shop->productImgHtml($p, '200', ['itemprop' => 'image', 'alt' => $p.name, 'default' => "`$wa_theme_url`img/dummy200.png"])}
+                        {$wa->shop->productImgHtml($p, '200', ['itemprop' => 'image', 'alt' => $p.name])}
                         <h5 itemprop="name">
                             {$p.name}
                         </h5>
@@ -25,8 +25,8 @@
                 {if $p.summary}<p itemprop="description">{$p.summary}</p>{/if}
 
                 <div itemprop="offers" class="offers" itemscope itemtype="http://schema.org/Offer">
-                    {if $p.compare_price > 0}<span class="compare-at-price nowrap"> {shop_currency($p.compare_price)} </span>{/if}
-                    <span class="price nowrap" itemprop="price">{shop_currency($p.price)}</span>
+                    {if $p.compare_price > 0}<span class="compare-at-price nowrap">{wa_currency_html($p.compare_price, $wa->shop->currency())}</span>{/if}
+                    <span class="price nowrap" itemprop="price">{wa_currency_html($p.price, $wa->shop->currency())}</span>
                 </div>
             </li>
         {/foreach}

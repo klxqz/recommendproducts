@@ -2,7 +2,7 @@
 
 class blogRecommendproductsPluginBackendSettingsAction extends waViewAction {
 
-    protected $templates= array(
+    protected $templates = array(
         'FrontendCheckout' => array(
             'name' => 'Шаблон вывода рекомендуемых товаров',
             'path' => 'plugins/recommendproducts/templates/RecommendProducts.html',
@@ -20,7 +20,7 @@ class blogRecommendproductsPluginBackendSettingsAction extends waViewAction {
         $app_settings_model = new waAppSettingsModel();
         $settings = $app_settings_model->get($this->plugin_id);
         $this->view->assign('settings', $settings);
-        
+
         foreach ($this->templates as &$template) {
             $template_path = wa()->getDataPath($template['path'], false, 'blog', true);
             if (file_exists($template_path)) {
