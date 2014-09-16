@@ -1,7 +1,7 @@
 <?php
 
 return array(
-    'blog_recommend_products' => array(
+    'blog_recommendproducts' => array(
         'post_id' => array('int', 11, 'null' => 0),
         'status' => array('tinyint', 1, 'null' => 0, 'default' => '0'),
         'route' => array('varchar', 255, 'null' => 0, 'default' => ''),

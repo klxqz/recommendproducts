@@ -142,11 +142,6 @@ class blogRecommendproductsPlugin extends blogPlugin {
         $category_model = new shopCategoryModel();
         $categories = $category_model->getFullTree('id, name, depth, url, full_url', true);
         $routes = $domain_routes[$domain];
-        foreach ($routes as $r) {
-            if (empty($r['private']) && $r['url'] == $url && (empty($r['type_id']) || (in_array($product['type_id'], (array) $r['type_id'])))) {
-                $routing->setRoute($r, $domain);
-            }
-        }
 
         foreach ($products as &$product) {
             $params = array('product_url' => $product['url']);
@@ -155,6 +150,11 @@ class blogRecommendproductsPlugin extends blogPlugin {
                     $params['category_url'] = $categories[$product['category_id']]['url'];
                 } else {
                     $params['category_url'] = $categories[$product['category_id']]['full_url'];
+                }
+            }
+            foreach ($routes as $r) {
+                if (empty($r['private']) && $r['url'] == $url && (empty($r['type_id']) || (in_array($product['type_id'], (array) $r['type_id'])))) {
+                    $routing->setRoute($r, $domain);
                 }
             }
             $product['frontend_url'] = $routing->getUrl('shop/frontend/product', $params, true);

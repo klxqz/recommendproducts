@@ -2,6 +2,6 @@
 
 class shopRecommendproductsPluginModel extends waModel {
 
-    protected $table = 'blog_recommend_products';
+    protected $table = 'blog_recommendproducts';
 
 }
