@@ -5,6 +5,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
     protected static $plugin_id = array('blog', 'recommendproducts');
     protected $recommend = array(
         'status' => 0,
+        'route' => '',
         'default_output_products' => 1,
         'title_products' => 'Рекомендуемые товары',
         'count_products' => 3,
