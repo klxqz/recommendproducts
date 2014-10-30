@@ -16,8 +16,8 @@
                 <div class="review" itemprop="review" itemscope itemtype="http://schema.org/Review">
                     <div class="summary">
                         <span class="date" title="{$review.datetime|wa_datetime}">{$review.datetime|wa_datetime:"humandatetime"}</span>
-                        {$review.author.name}, отзыв к товару 
-                        <a href="{$review.product.frontend_url}" title="{$review.product.name}{if $review.product.summary} &mdash; {strip_tags($review.product.summary)}{/if}">
+                        {$review.author.name|escape}, отзыв к товару 
+                        <a href="{$review.product.frontend_url}" title="{$review.product.name|escape}{if $review.product.summary} &mdash; {strip_tags($review.product.summary)}{/if}">
                             {$review.product.name}
                         </a>
                         <h6>
@@ -30,14 +30,14 @@
                                     {$wa->shop->ratingHtml($rate)}
                                 </span>
                             {/if}
-                            <span itemprop="name">{if $review.title}{$review.title}{/if}</span>
+                            <span itemprop="name">{if $review.title}{$review.title|escape}{/if}</span>
                         </h6>
 
                         <meta itemprop="datePublished" content="{$review.datetime|date_format:'Y-m-d'}">
                         
                     </div>
                     {if $review.text}
-                        <p itemprop="description">{$review.text}</p>
+                        <p itemprop="description">{$review.text|escape}</p>
                     {/if}
                 </div>
             </li>
