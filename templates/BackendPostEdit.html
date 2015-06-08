@@ -81,24 +81,50 @@
             </div>
         </div>
 
-        <div class="field">
+        <div class="field product_mode">
             <div class="name">
-                Показывать товары из категории
+                Режим подбора товаров
             </div>
             <div class="value">
-                <div class="b-ibutton-checkbox">
-                    <input type="hidden" name="blog_recommendproducts[category_filter]" value="0">
-                    <ul class="menu-h">
-                        <li>Выкл</li>
-                        <li><input autocomplete="off" {if $recommend.category_filter}checked="checked"{/if} id="recommendproducts-show-categories" type="checkbox" name="blog_recommendproducts[category_filter]" value="1"></li>
-                        <li>Вкл</li>
-                    </ul>
-                </div>
+                <input autocomplete="off" type="radio" {if $recommend.product_mode == 'list'}checked="checked"{/if} name="blog_recommendproducts[product_mode]" value="list" /> - списки
+                <input autocomplete="off" type="radio" {if $recommend.product_mode == 'find'}checked="checked"{/if} name="blog_recommendproducts[product_mode]" value="find" /> - подбор товаров по параметрам
+
             </div>
         </div>
 
-        <div class="recommendproducts-categories">
+        <div class="field-group list-mode">
             <div class="field">
+                <div class="name">
+                    Список товаров
+                </div>
+                <div class="value">
+                    <select autocomplete="off" name="blog_recommendproducts[set_id]">
+                        <option {if $recommend.set_id == ''}selected="selected"{/if} value="">Выберите список</option>
+                        {foreach $sets as $set}
+                            <option {if $recommend.set_id == $set.id}selected="selected"{/if} value="{$set.id}">{$set.name|escape}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+        </div> 
+        <div class="field-group find-mode">
+            <div class="field">
+                <div class="name">
+                    Показывать товары из категории
+                </div>
+                <div class="value">
+                    <div class="b-ibutton-checkbox">
+                        <input type="hidden" name="blog_recommendproducts[category_filter]" value="0">
+                        <ul class="menu-h">
+                            <li>Выкл</li>
+                            <li><input autocomplete="off" {if $recommend.category_filter}checked="checked"{/if} id="recommendproducts-show-categories" type="checkbox" name="blog_recommendproducts[category_filter]" value="1"></li>
+                            <li>Вкл</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field recommendproducts-categories">
                 <div class="name">
                     Выбирите категории
                 </div>
@@ -109,132 +135,133 @@
                     {/if}
                 </div>
             </div>
-        </div>
 
-
-        <div class="field">
-            <div class="name">
-                Фильтрация товаров
-            </div>
-            <div class="value">
-                <div class="b-ibutton-checkbox">
-                    <input  type="hidden" name="blog_recommendproducts[filter]" value="0">
-                    <ul class="menu-h">
-                        <li>Выкл</li>
-                        <li><input autocomplete="off" {if $recommend.filter}checked="checked"{/if} id="recommendproducts-show-filter" type="checkbox" name="blog_recommendproducts[filter]" value="1"></li>
-                        <li>Вкл</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="recommendproducts-filters">
             <div class="field">
                 <div class="name">
-                    Выбирите фильтры
+                    Фильтрация товаров
                 </div>
                 <div class="value">
+                    <div class="b-ibutton-checkbox">
+                        <input  type="hidden" name="blog_recommendproducts[filter]" value="0">
+                        <ul class="menu-h">
+                            <li>Выкл</li>
+                            <li><input autocomplete="off" {if $recommend.filter}checked="checked"{/if} id="recommendproducts-show-filter" type="checkbox" name="blog_recommendproducts[filter]" value="1"></li>
+                            <li>Вкл</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="recommendproducts-filters">
+                <div class="field">
+                    <div class="name">
+                        Выбирите фильтры
+                    </div>
+                    <div class="value">
 
-                    <p>
-                        <b>Зачеркнутая цена</b><br>
-                        <input autocomplete="off" type="checkbox" name="add_filters[compare_price]" {if isset($recommend.add_filters.compare_price)}checked="checked"{/if} value="1">
-                    </p>
-
-                    <p>
-                        <b>Райтинг &gE;</b><br>
-                        <select autocomplete="off" name="add_filters[rating]">
-                            <option></option>
-                            {$ratings = array(0,1,2,3,4,5)}
-                            {foreach $ratings as $rating}
-                                <option {if isset($recommend.add_filters.rating) && $rating == $recommend.add_filters.rating}selected="selected"{/if} value="{$rating}">{$rating}</option>
-                            {/foreach}
-                        </select>
-                    </p>
-
-
-                    <p>
-                        <b>Товар в наличии</b><br>
-                        <input autocomplete="off" type="checkbox" name="filters[in_stock_only]" {if isset($recommend.filters.in_stock_only)}checked="checked"{/if} value="1">
-                    </p>
-
-                    {foreach $filters as $fid => $filter}
                         <p>
-                            {if $fid == 'price'}
-                                {$c = $wa->shop->currency(true)}
-                                <b>Цена</b><br>
-                                от <input autocomplete="off" type="text" name="filters[price_min]" {if isset($recommend.filters.price_min) && $recommend.filters.price_min}value="{(int)$recommend.filters.price_min}"{/if} placeholder="{floor($filter.min)}">
-                                до <input autocomplete="off" type="text" name="filters[price_max]" {if isset($recommend.filters.price_max) && $recommend.filters.price_max}value="{(int)$recommend.filters.price_max}"{/if} placeholder="{ceil($filter.max)}"> {$c.sign}
-                            {else}
-                                <b>{$filter.name|escape}</b><br>
-                                {if $filter.type == 'boolean'}
-                                    <label><input autocomplete="off" type="radio" name="filters[{$filter.code}]" {if isset($recommend.filters[$filter.code]) && $recommend.filters[$filter.code]}checked="checked"{/if} value="1"> Да</label><br>
-                                    <label><input autocomplete="off" type="radio" name="filters[{$filter.code}]" {if isset($recommend.filters[$filter.code]) && $recommend.filters[$filter.code] === '0'}checked="checked"{/if} value="0"> Нет</label><br>
-                                    <label><input autocomplete="off" type="radio" name="filters[{$filter.code}]" {if isset($recommend.filters[$filter.code]) && $recommend.filters[$filter.code] === ''}checked="checked"{/if} value=""> Любое</label><br>
-                                    {elseif isset($filter.min)}
-                                        {if isset($recommend.filters[$filter.code])}
-                                            {$_v = $recommend.filters[$filter.code]}
-                                        {/if}
-
-                                    от <input autocomplete="off" type="text" name="filters[{$filter.code}][min]" placeholder="{$filter.min}" {if !empty($_v.min)}value="{$_v.min}"{/if}>
-                                    до <input autocomplete="off" type="text" name="filters[{$filter.code}][max]" placeholder="{$filter.max}" {if !empty($_v.max)}value="{$_v.max}"{/if}>
-                                    {if !empty($filter.unit)}
-                                        {$filter.unit.title}
-                                        {if $filter.unit.value != $filter.base_unit.value}<input type="hidden" name="filters[{$filter.code}][unit]" value="{$filter.unit.value}">{/if}
-                                    {/if}
-                                {else}
-                                    {foreach $filter.values as $v_id => $v}
-                                        <label>
-                                            <input autocomplete="off" type="checkbox" name="filters[{$filter.code}][]" {if isset($recommend.filters[$filter.code]) && in_array($v_id, (array)$recommend.filters[$filter.code])}checked="checked"{/if} value="{$v_id}"> {$v}
-                                        </label><br>
-                                    {/foreach}
-                                {/if}
-                            {/if}
+                            <b>Зачеркнутая цена</b><br>
+                            <input autocomplete="off" type="checkbox" name="add_filters[compare_price]" {if isset($recommend.add_filters.compare_price)}checked="checked"{/if} value="1">
                         </p>
-                    {/foreach}
+
+                        <p>
+                            <b>Райтинг &gE;</b><br>
+                            <select autocomplete="off" name="add_filters[rating]">
+                                <option></option>
+                                {$ratings = array(0,1,2,3,4,5)}
+                                {foreach $ratings as $rating}
+                                    <option {if isset($recommend.add_filters.rating) && $rating == $recommend.add_filters.rating}selected="selected"{/if} value="{$rating}">{$rating}</option>
+                                {/foreach}
+                            </select>
+                        </p>
+
+
+                        <p>
+                            <b>Товар в наличии</b><br>
+                            <input autocomplete="off" type="checkbox" name="filters[in_stock_only]" {if isset($recommend.filters.in_stock_only)}checked="checked"{/if} value="1">
+                        </p>
+
+                        {foreach $filters as $fid => $filter}
+                            <p>
+                                {if $fid == 'price'}
+                                    {$c = $wa->shop->currency(true)}
+                                    <b>Цена</b><br>
+                                    от <input autocomplete="off" type="text" name="filters[price_min]" {if isset($recommend.filters.price_min) && $recommend.filters.price_min}value="{(int)$recommend.filters.price_min}"{/if} placeholder="{floor($filter.min)}">
+                                    до <input autocomplete="off" type="text" name="filters[price_max]" {if isset($recommend.filters.price_max) && $recommend.filters.price_max}value="{(int)$recommend.filters.price_max}"{/if} placeholder="{ceil($filter.max)}"> {$c.sign}
+                                {else}
+                                    <b>{$filter.name|escape}</b><br>
+                                    {if $filter.type == 'boolean'}
+                                        <label><input autocomplete="off" type="radio" name="filters[{$filter.code}]" {if isset($recommend.filters[$filter.code]) && $recommend.filters[$filter.code]}checked="checked"{/if} value="1"> Да</label><br>
+                                        <label><input autocomplete="off" type="radio" name="filters[{$filter.code}]" {if isset($recommend.filters[$filter.code]) && $recommend.filters[$filter.code] === '0'}checked="checked"{/if} value="0"> Нет</label><br>
+                                        <label><input autocomplete="off" type="radio" name="filters[{$filter.code}]" {if isset($recommend.filters[$filter.code]) && $recommend.filters[$filter.code] === ''}checked="checked"{/if} value=""> Любое</label><br>
+                                        {elseif isset($filter.min)}
+                                            {if isset($recommend.filters[$filter.code])}
+                                                {$_v = $recommend.filters[$filter.code]}
+                                            {/if}
+
+                                        от <input autocomplete="off" type="text" name="filters[{$filter.code}][min]" placeholder="{$filter.min}" {if !empty($_v.min)}value="{$_v.min}"{/if}>
+                                        до <input autocomplete="off" type="text" name="filters[{$filter.code}][max]" placeholder="{$filter.max}" {if !empty($_v.max)}value="{$_v.max}"{/if}>
+                                        {if !empty($filter.unit)}
+                                            {$filter.unit.title}
+                                            {if $filter.unit.value != $filter.base_unit.value}<input type="hidden" name="filters[{$filter.code}][unit]" value="{$filter.unit.value}">{/if}
+                                        {/if}
+                                    {else}
+                                        {foreach $filter.values as $v_id => $v}
+                                            <label>
+                                                <input autocomplete="off" type="checkbox" name="filters[{$filter.code}][]" {if isset($recommend.filters[$filter.code]) && in_array($v_id, (array)$recommend.filters[$filter.code])}checked="checked"{/if} value="{$v_id}"> {$v}
+                                            </label><br>
+                                        {/foreach}
+                                    {/if}
+                                {/if}
+                            </p>
+                        {/foreach}
+                    </div>
                 </div>
             </div>
+
         </div>
 
 
-        <div class="field">
-            <div class="name">
-                Показ отзывов о рекомендуемых товаров в основном блоке
-            </div>
-            <div class="value">
-                <div class="b-ibutton-checkbox">
-                    <input type="hidden" name="blog_recommendproducts[default_output_reviews]" value="0">
-                    <ul class="menu-h">
-                        <li>Выкл</li>
-                        <li><input autocomplete="off" {if $recommend.default_output_reviews}checked="checked"{/if} id="recommendproducts-default-output-reviews" type="checkbox" name="blog_recommendproducts[default_output_reviews]" value="1" checked="checked"></li>
-                        <li>Вкл</li>
-                    </ul>
+        <div class="field-group">
+            <div class="field">
+                <div class="name">
+                    Показ отзывов о рекомендуемых товаров в основном блоке
+                </div>
+                <div class="value">
+                    <div class="b-ibutton-checkbox">
+                        <input type="hidden" name="blog_recommendproducts[default_output_reviews]" value="0">
+                        <ul class="menu-h">
+                            <li>Выкл</li>
+                            <li><input autocomplete="off" {if $recommend.default_output_reviews}checked="checked"{/if} id="recommendproducts-default-output-reviews" type="checkbox" name="blog_recommendproducts[default_output_reviews]" value="1" checked="checked"></li>
+                            <li>Вкл</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="field">
-            <div class="name">
-                Наименование блока с отзывами
+            <div class="field">
+                <div class="name">
+                    Наименование блока с отзывами
+                </div>
+                <div class="value">
+                    <input autocomplete="off" type="text" value="{$recommend.title_reviews|escape}" name="blog_recommendproducts[title_reviews]" />
+                </div>
             </div>
-            <div class="value">
-                <input autocomplete="off" type="text" value="{$recommend.title_reviews|escape}" name="blog_recommendproducts[title_reviews]" />
+            <div class="field">
+                <div class="name">
+                    Общее количество выводимых отзывов
+                </div>
+                <div class="value">
+                    <input autocomplete="off" type="text" value="{$recommend.count_reviews|escape}" name="blog_recommendproducts[count_reviews]" />
+                </div>
             </div>
-        </div>
-        <div class="field">
-            <div class="name">
-                Общее количество выводимых отзывов
-            </div>
-            <div class="value">
-                <input autocomplete="off" type="text" value="{$recommend.count_reviews|escape}" name="blog_recommendproducts[count_reviews]" />
-            </div>
-        </div>
 
-        <div class="field">
-            <div class="name">
-                Количество выводимых отзывов для одного товара
-            </div>
-            <div class="value">
-                <input autocomplete="off" type="text" value="{$recommend.product_count_reviews|escape}" name="blog_recommendproducts[product_count_reviews]" />
+            <div class="field">
+                <div class="name">
+                    Количество выводимых отзывов для одного товара
+                </div>
+                <div class="value">
+                    <input autocomplete="off" type="text" value="{$recommend.product_count_reviews|escape}" name="blog_recommendproducts[product_count_reviews]" />
+                </div>
             </div>
         </div>
 
@@ -242,7 +269,18 @@
 </div>
 
 <script>
-    $(function() {
+    $(function () {
+        $('.product_mode input').change(function () {
+            if ($('.product_mode input:checked').val() == 'list') {
+                $('.list-mode').show();
+                $('.find-mode').hide();
+            } else {
+                $('.list-mode').hide();
+                $('.find-mode').show();
+            }
+        });
+        $('.product_mode input').change();
+
         $('#recommendproducts-default-output,#recommendproducts-default-output-reviews').iButton({
             labelOn: '',
             labelOff: '',
@@ -252,7 +290,7 @@
             labelOn: '',
             labelOff: '',
             className: 'mini'
-        }).change(function() {
+        }).change(function () {
             if ($(this).attr('checked')) {
                 $('.recommendproducts-settings').show();
             } else {
@@ -264,7 +302,7 @@
             labelOn: '',
             labelOff: '',
             className: 'mini'
-        }).change(function() {
+        }).change(function () {
             if ($(this).attr('checked')) {
                 $('.recommendproducts-categories').show();
             } else {
@@ -276,7 +314,7 @@
             labelOn: '',
             labelOff: '',
             className: 'mini'
-        }).change(function() {
+        }).change(function () {
             if ($(this).attr('checked')) {
                 $('.recommendproducts-filters').show();
             } else {
@@ -285,7 +323,7 @@
         });
         $('#recommendproducts-show-filter').change();
         var categories = [{implode(',', array_keys($recommend.categories))}];
-        $('#recommendproducts-categories input').each(function() {
+        $('#recommendproducts-categories input').each(function () {
             var id = $(this).data('id');
             if (categories.indexOf(id) != -1) {
                 $(this).attr('checked', 'checked');
@@ -293,7 +331,7 @@
                 $(this).removeAttr('checked');
             }
         });
-        $('#recommendproducts-categories input').change(function() {
+        $('#recommendproducts-categories input').change(function () {
             if ($(this).attr('checked')) {
                 $(this).parent().find('input').attr('checked', 'checked');
             } else {

@@ -34,7 +34,7 @@
                         </h6>
 
                         <meta itemprop="datePublished" content="{$review.datetime|date_format:'Y-m-d'}">
-                        
+
                     </div>
                     {if $review.text}
                         <p itemprop="description">{$review.text|escape}</p>
@@ -44,7 +44,7 @@
         {/foreach}
     </ul>
     <script type="text/javascript">
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('.recommendproducts-reviews').bxSlider({
                 slideWidth: 250,
                 minSlides: 1,

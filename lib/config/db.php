@@ -8,6 +8,8 @@ return array(
         'default_output_products' => array('tinyint', 1, 'null' => 0, 'default' => '0'),
         'title_products' => array('varchar', 255, 'null' => 0, 'default' => ''),
         'count_products' => array('int', 11, 'null' => 0),
+        'product_mode' => array('enum', "'list','find'", 'null' => 0, 'default' => 'list'),
+        'set_id' => array('varchar', 64, 'null' => 0, 'default' => ''),
         'category_filter' => array('tinyint', 1, 'null' => 0, 'default' => '0'),
         'categories' => array('text'),
         'filter' => array('tinyint', 1, 'null' => 0, 'default' => '0'),

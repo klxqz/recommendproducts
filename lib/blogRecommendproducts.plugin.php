@@ -28,7 +28,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
         $recommendproducts['categories'] = json_encode($categories);
         $recommendproducts['filters'] = json_encode($filters);
         $recommendproducts['add_filters'] = json_encode($add_filters);
-        $model = new shopRecommendproductsPluginModel();
+        $model = new blogRecommendproductsPluginModel();
         $exists = $model->getByField('post_id', $post['id']);
         if ($exists) {
             $model->updateByField('post_id', $post['id'], $recommendproducts);
@@ -42,7 +42,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
         $app_settings_model = new waAppSettingsModel();
         if ($app_settings_model->get(self::$plugin_id, 'status')) {
             try {
-                $model = new shopRecommendproductsPluginModel();
+                $model = new blogRecommendproductsPluginModel();
                 $recommend = $model->getByField('post_id', $post['id']);
                 if (!$recommend) {
                     $recommend = $this->recommend;
@@ -52,6 +52,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
                 $recommend['add_filters'] = $recommend['add_filters'] ? json_decode($recommend['add_filters'], true) : array();
 
                 $filters = $this->getCategoryFilter();
+                $sets = $this->getSets();
 
                 $routing = wa()->getRouting();
                 $domain_routes = $routing->getByApp('shop');
@@ -59,6 +60,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
                 $view = wa()->getView();
                 $view->assign('recommend', $recommend);
                 $view->assign('filters', $filters);
+                $view->assign('sets', $sets);
                 $view->assign('domain_routes', $domain_routes);
 
                 $html = $view->fetch($this->path . '/templates/BackendPostEdit.html');
@@ -72,7 +74,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
     public function frontendPost($post) {
         $html = '';
         $app_settings_model = new waAppSettingsModel();
-        $model = new shopRecommendproductsPluginModel();
+        $model = new blogRecommendproductsPluginModel();
         $recommend = $model->getByField('post_id', $post['id']);
         if ($recommend && $recommend['default_output_products']) {
             $html .= self::displayProducts($post['id']);
@@ -86,7 +88,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
 
     public static function displayProducts($post_id) {
         $app_settings_model = new waAppSettingsModel();
-        $model = new shopRecommendproductsPluginModel();
+        $model = new blogRecommendproductsPluginModel();
         $recommend = $model->getByField('post_id', $post_id);
         if ($app_settings_model->get(self::$plugin_id, 'status') && $recommend && $recommend['status']) {
             try {
@@ -102,14 +104,21 @@ class blogRecommendproductsPlugin extends blogPlugin {
                 if ($cache && $cache->isCached()) {
                     $products = $cache->get();
                 } else {
-                    $recommend['categories'] = json_decode($recommend['categories'], true);
-                    $recommend['filters'] = json_decode($recommend['filters'], true);
-                    $recommend['add_filters'] = json_decode($recommend['add_filters'], true);
-                    wa('shop');
-                    $collection = new blogRecommendproductsProductsCollection();
-                    $collection->filters($recommend);
+                    if ($recommend['product_mode'] == 'find') {
+                        $recommend['categories'] = json_decode($recommend['categories'], true);
+                        $recommend['filters'] = json_decode($recommend['filters'], true);
+                        $recommend['add_filters'] = json_decode($recommend['add_filters'], true);
+                        wa('shop');
+                        $collection = new blogRecommendproductsProductsCollection();
+                        $collection->filters($recommend);
+                    } else {
+                        if (!wa()->appExists('shop')) {
+                            throw new waException('Не установлено приложение Shop-Script');
+                        }
+                        wa('shop');
+                        $collection = new shopProductsCollection('set/' . $recommend['set_id']);
+                    }
                     $products = $collection->getProducts('*', 0, $recommend['count_products']);
-
                     $products = self::prepareProducts($products, $recommend['route']);
 
                     if ($products && $cache) {
@@ -166,7 +175,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
 
     public static function displayReviews($post_id) {
         $app_settings_model = new waAppSettingsModel();
-        $model = new shopRecommendproductsPluginModel();
+        $model = new blogRecommendproductsPluginModel();
         $recommend = $model->getByField('post_id', $post_id);
         if ($app_settings_model->get(self::$plugin_id, 'status') && $recommend && $recommend['status']) {
             try {
@@ -224,6 +233,15 @@ class blogRecommendproductsPlugin extends blogPlugin {
                 return 'Ошибка. ' . $ex->getMessage();
             }
         }
+    }
+
+    protected function getSets() {
+        if (!wa()->appExists('shop')) {
+            throw new waException('Не установлено приложение Shop-Script');
+        }
+        wa('shop');
+        $set_model = new shopSetModel();
+        return $set_model->getAll();
     }
 
     protected function getCategoryFilter() {
