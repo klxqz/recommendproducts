@@ -86,45 +86,55 @@ class blogRecommendproductsPlugin extends blogPlugin {
         return array('footer' => $html);
     }
 
+    public static function getPostProducts($post_id) {
+        $products = array();
+        $app_settings_model = new waAppSettingsModel();
+        $model = new blogRecommendproductsPluginModel();
+        $recommend = $model->getByField('post_id', $post_id);
+        if ($app_settings_model->get(self::$plugin_id, 'status') && $recommend && $recommend['status']) {
+            if (!wa()->appExists('shop')) {
+                throw new waException('Не установлено приложение Shop-Script');
+            }
+            $params_key = serialize($recommend);
+            $cache_id = md5('blogRecommendproductsPlugin::displayProducts' . $params_key);
+
+            $cache_time = wa()->getConfig()->isDebug() ? 0 : 1800;
+            $cache = new waSerializeCache($cache_id, $cache_time);
+            if ($cache && $cache->isCached()) {
+                $products = $cache->get();
+            } else {
+                if ($recommend['product_mode'] == 'find') {
+                    $recommend['categories'] = json_decode($recommend['categories'], true);
+                    $recommend['filters'] = json_decode($recommend['filters'], true);
+                    $recommend['add_filters'] = json_decode($recommend['add_filters'], true);
+                    wa('shop');
+                    $collection = new blogRecommendproductsProductsCollection();
+                    $collection->filters($recommend);
+                } else {
+                    if (!wa()->appExists('shop')) {
+                        throw new waException('Не установлено приложение Shop-Script');
+                    }
+                    wa('shop');
+                    $collection = new shopProductsCollection('set/' . $recommend['set_id']);
+                }
+                $products = $collection->getProducts('*', 0, $recommend['count_products']);
+                $products = self::prepareProducts($products, $recommend['route']);
+
+                if ($products && $cache) {
+                    $cache->set($products);
+                }
+            }
+        }
+        return $products;
+    }
+
     public static function displayProducts($post_id) {
         $app_settings_model = new waAppSettingsModel();
         $model = new blogRecommendproductsPluginModel();
         $recommend = $model->getByField('post_id', $post_id);
         if ($app_settings_model->get(self::$plugin_id, 'status') && $recommend && $recommend['status']) {
             try {
-                if (!wa()->appExists('shop')) {
-                    throw new waException('Не установлено приложение Shop-Script');
-                }
-
-                $params_key = serialize($recommend);
-                $cache_id = md5('blogRecommendproductsPlugin::displayProducts' . $params_key);
-
-                $cache_time = wa()->getConfig()->isDebug() ? 0 : 1800;
-                $cache = new waSerializeCache($cache_id, $cache_time);
-                if ($cache && $cache->isCached()) {
-                    $products = $cache->get();
-                } else {
-                    if ($recommend['product_mode'] == 'find') {
-                        $recommend['categories'] = json_decode($recommend['categories'], true);
-                        $recommend['filters'] = json_decode($recommend['filters'], true);
-                        $recommend['add_filters'] = json_decode($recommend['add_filters'], true);
-                        wa('shop');
-                        $collection = new blogRecommendproductsProductsCollection();
-                        $collection->filters($recommend);
-                    } else {
-                        if (!wa()->appExists('shop')) {
-                            throw new waException('Не установлено приложение Shop-Script');
-                        }
-                        wa('shop');
-                        $collection = new shopProductsCollection('set/' . $recommend['set_id']);
-                    }
-                    $products = $collection->getProducts('*', 0, $recommend['count_products']);
-                    $products = self::prepareProducts($products, $recommend['route']);
-
-                    if ($products && $cache) {
-                        $cache->set($products);
-                    }
-                }
+                $products = self::getPostProducts($post_id);
 
                 $view = wa()->getView();
                 $view->assign('title_products', $recommend['title_products']);
@@ -191,14 +201,8 @@ class blogRecommendproductsPlugin extends blogPlugin {
                 if ($cache && $cache->isCached()) {
                     $reviews = $cache->get();
                 } else {
-                    $recommend['categories'] = json_decode($recommend['categories'], true);
-                    $recommend['filters'] = json_decode($recommend['filters'], true);
-                    $recommend['add_filters'] = json_decode($recommend['add_filters'], true);
-                    wa('shop');
-                    $collection = new blogRecommendproductsProductsCollection();
-                    $collection->filters($recommend);
-                    $products = $collection->getProducts('*', 0, $recommend['count_products']);
-                    $products = self::prepareProducts($products, $recommend['route']);
+                    wa('shop');                    
+                    $products = self::getPostProducts($post_id);
 
                     $reviews_model = new shopProductReviewsModel();
                     $reviews = array();
