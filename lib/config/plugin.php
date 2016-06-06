@@ -4,7 +4,7 @@ return array(
     'name' => 'Рекомендуемые товары',
     'description' => 'Вывод рекомендуемых товаров в блоге',
     'vendor' => '985310',
-    'version' => '1.1.1',
+    'version' => '1.1.2',
     'img' => 'img/recommendproducts.png',
     'frontend' => true,
     'blog_settings' => true,

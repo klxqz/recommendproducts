@@ -14,7 +14,7 @@ class blogRecommendproductsProductsCollection extends shopProductsCollection {
 
         $categories = array_keys($recommend['categories']);
         if ($recommend['category_filter'] && $categories) {
-            $this->where[] = "p.category_id IN ('" . implode("','", $categories) . "')";
+            $this->where[] = "(p.category_id IN ('" . implode("','", $categories) . "') OR p.id IN (SELECT product_id FROM `shop_category_products` WHERE category_id IN ('" . implode("','", $categories) . "')))";
         }
 
         if ($recommend['filter'] && isset($recommend['add_filters']['rating'])) {

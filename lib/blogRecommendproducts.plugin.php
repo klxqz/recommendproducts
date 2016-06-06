@@ -9,6 +9,8 @@ class blogRecommendproductsPlugin extends blogPlugin {
         'default_output_products' => 1,
         'title_products' => 'Рекомендуемые товары',
         'count_products' => 3,
+        'product_mode' => 'find',
+        'set_id' => '',
         'category_filter' => 0,
         'categories' => '',
         'filter' => 0,
@@ -201,7 +203,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
                 if ($cache && $cache->isCached()) {
                     $reviews = $cache->get();
                 } else {
-                    wa('shop');                    
+                    wa('shop');
                     $products = self::getPostProducts($post_id);
 
                     $reviews_model = new shopProductReviewsModel();

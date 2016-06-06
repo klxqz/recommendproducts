@@ -86,8 +86,8 @@
                 Режим подбора товаров
             </div>
             <div class="value">
-                <input autocomplete="off" type="radio" {if $recommend.product_mode == 'list'}checked="checked"{/if} name="blog_recommendproducts[product_mode]" value="list" /> - списки
-                <input autocomplete="off" type="radio" {if $recommend.product_mode == 'find'}checked="checked"{/if} name="blog_recommendproducts[product_mode]" value="find" /> - подбор товаров по параметрам
+                <input autocomplete="off" type="radio" {if $recommend.product_mode|default:'find' == 'list'}checked="checked"{/if} name="blog_recommendproducts[product_mode]" value="list" /> - списки
+                <input autocomplete="off" type="radio" {if $recommend.product_mode|default:'find' == 'find'}checked="checked"{/if} name="blog_recommendproducts[product_mode]" value="find" /> - подбор товаров по параметрам
 
             </div>
         </div>
@@ -99,9 +99,9 @@
                 </div>
                 <div class="value">
                     <select autocomplete="off" name="blog_recommendproducts[set_id]">
-                        <option {if $recommend.set_id == ''}selected="selected"{/if} value="">Выберите список</option>
+                        <option {if $recommend.set_id|default:'' == ''}selected="selected"{/if} value="">Выберите список</option>
                         {foreach $sets as $set}
-                            <option {if $recommend.set_id == $set.id}selected="selected"{/if} value="{$set.id}">{$set.name|escape}</option>
+                            <option {if $recommend.set_id|default:'' == $set.id}selected="selected"{/if} value="{$set.id}">{$set.name|escape}</option>
                         {/foreach}
                     </select>
                 </div>
@@ -126,7 +126,7 @@
 
             <div class="field recommendproducts-categories">
                 <div class="name">
-                    Выбирите категории
+                    Выберите категории
                 </div>
                 <div class="value">
                     {$categories = $wa->shop->categories(0, null, true)}
@@ -154,7 +154,7 @@
             <div class="recommendproducts-filters">
                 <div class="field">
                     <div class="name">
-                        Выбирите фильтры
+                        Выберите фильтры
                     </div>
                     <div class="value">
 
