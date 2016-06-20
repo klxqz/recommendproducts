@@ -35,13 +35,10 @@ class blogRecommendproductsPluginBackendSaveSettingsController extends waJsonCon
                     }
                     $post_template = $post_templates[$id];
 
-                    $template_path = wa()->getDataPath($template['path'], false, 'blog', true);
-                    if (!file_exists($template_path)) {
-                        $template_path = wa()->getAppPath($template['path'], 'blog');
-                    }
+                    $template_path = wa()->getAppPath($template['path'], 'blog');
 
                     $template_content = file_get_contents($template_path);
-                    if ($template_content != $post_template) {
+                    if (strcmp($template_content, $post_template) != 0) {
                         $template_path = wa()->getDataPath($template['path'], false, 'blog', true);
 
                         $f = fopen($template_path, 'w');

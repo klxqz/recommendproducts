@@ -65,6 +65,7 @@
 <div class="clear-left"></div>
 <script type="text/javascript">
     $(function() {
+        $.wa_blog.plugins_recommendproducts.ajaxInit();
         var ids = [{foreach $templates as $key => $template}"sf-template-{$key}",{/foreach}];
                 for (var i = 0; i < ids.length; i++) {
             var c = CodeMirror.fromTextArea(document.getElementById(ids[i]), {

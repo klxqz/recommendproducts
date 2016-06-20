@@ -165,22 +165,22 @@ class blogRecommendproductsPlugin extends blogPlugin {
         $categories = $category_model->getFullTree('id, name, depth, url, full_url', true);
         $routes = $domain_routes[$domain];
 
+        $route = $routing->getRoute();
+        foreach ($routes as $r) {
+            if (empty($r['private']) && $r['url'] == $url && (empty($r['type_id']) || (in_array($product['type_id'], (array) $r['type_id'])))) {
+                $routing->setRoute($r, $domain);
+            }
+        }
+
         foreach ($products as &$product) {
             $params = array('product_url' => $product['url']);
             if ($product['category_id'] && isset($categories[$product['category_id']])) {
-                if (!empty($r['url_type']) && $r['url_type'] == 1) {
-                    $params['category_url'] = $categories[$product['category_id']]['url'];
-                } else {
-                    $params['category_url'] = $categories[$product['category_id']]['full_url'];
-                }
+                $params['category_url'] = $categories[$product['category_id']]['full_url'];
             }
-            foreach ($routes as $r) {
-                if (empty($r['private']) && $r['url'] == $url && (empty($r['type_id']) || (in_array($product['type_id'], (array) $r['type_id'])))) {
-                    $routing->setRoute($r, $domain);
-                }
-            }
+
             $product['frontend_url'] = $routing->getUrl('shop/frontend/product', $params, true);
         }
+        $routing->setRoute($route, $domain);
         unset($product);
         return $products;
     }
