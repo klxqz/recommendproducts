@@ -166,13 +166,12 @@ class blogRecommendproductsPlugin extends blogPlugin {
         $routes = $domain_routes[$domain];
 
         $route = $routing->getRoute();
-        foreach ($routes as $r) {
-            if (empty($r['private']) && $r['url'] == $url && (empty($r['type_id']) || (in_array($product['type_id'], (array) $r['type_id'])))) {
-                $routing->setRoute($r, $domain);
-            }
-        }
-
         foreach ($products as &$product) {
+            foreach ($routes as $r) {
+                if (empty($r['private']) && $r['url'] == $url && (empty($r['type_id']) || (in_array($product['type_id'], (array) $r['type_id'])))) {
+                    $routing->setRoute($r, $domain);
+                }
+            }
             $params = array('product_url' => $product['url']);
             if ($product['category_id'] && isset($categories[$product['category_id']])) {
                 $params['category_url'] = $categories[$product['category_id']]['full_url'];
