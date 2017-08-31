@@ -41,8 +41,7 @@ class blogRecommendproductsPlugin extends blogPlugin {
     }
 
     public function backendPostEdit($post) {
-        $app_settings_model = new waAppSettingsModel();
-        if ($app_settings_model->get(self::$plugin_id, 'status')) {
+        if ($this->getSettings('status') && !empty($post['id'])) {
             try {
                 $model = new blogRecommendproductsPluginModel();
                 $recommend = $model->getByField('post_id', $post['id']);
